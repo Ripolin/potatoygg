@@ -14,14 +14,15 @@ import traceback
 class YGG(TorrentProvider, MovieProvider):
     """
     Couchpotato plugin to search movies torrents on www.yggtorrent.com.
+
+    .. seealso:: YarrProvider.login, Plugin.wait
     """
 
     url_scheme = 'https'
     domain_name = 'yggtorrent.com'
     limit = 15
-    # Used by YarrProvider.login()
     login_fail_msg = 'Ces identifiants sont invalides'
-    http_time_between_calls = 0  # Used by Plugin.wait()
+    http_time_between_calls = 0
     log = CPLog(__name__)
 
     def __init__(self):
@@ -32,8 +33,8 @@ class YGG(TorrentProvider, MovieProvider):
         MovieProvider.__init__(self)
         path_www = YGG.url_scheme+'://'+YGG.domain_name
         self.urls = {
-            'login': path_www+'/user/login',  # Used by YarrProvider.login()
-            'login_check': path_www,  # Used by YarrProvider.login()
+            'login': path_www+'/user/login',
+            'login_check': path_www,
             'search': path_www+'/engine/search?{0}'
         }
 
@@ -100,24 +101,43 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Retrieve age in days from the date of torrent addition.
         """
-        delta = 0
+        now = datetime.now()
+        delta = timedelta()
         matcher = re.search('il y a (\d+) (\S+)', str.strip())
         if matcher:
-            now = datetime.now()
             value = tryInt(matcher.group(1))
-
-            if matcher.group(2) in ['minute', 'minutes', 'heure', 'heures',
-                                    'jour']:
+            unit = matcher.group(2)
+            if unit in ['minute', 'minutes', 'heure', 'heures', 'jour']:
                 delta = now - timedelta(days=1)
-            if matcher.group(2) == 'jours':
+            if unit == 'jours':
                 delta = now - timedelta(days=value)
-            if matcher.group(2) == 'mois':
-                delta = now - timedelta(days=value*30)
-            if matcher.group(2) == 'an':
+            if unit == 'mois':
+                delta = now - timedelta(days=value*30)  # Average
+            if unit == 'an':
                 delta = now - timedelta(days=365)
-            if matcher.group(2) == 'ans':
+            if unit == 'ans':
                 delta = now - timedelta(days=value*365)
         return (now - delta).days
+
+    def parseText(self, node):
+        """
+        When a '@' char is present in the tag content, cloudfare can
+        interprets it as a email and by default protect it (cf. https://suppor
+        t.cloudflare.com/hc/en-us/articles/200170016-What-is-Email-Address-Obf
+        uscation-)
+        """
+        result = node.getText()
+        span = node.find(class_='__cf_email__')
+        if span:
+            """
+            https://stackoverflow.com/questions/36911296/scraping-of-protected-email
+            """
+            result = ''
+            encoded = span['data-cfemail']
+            k = int(encoded[:2], 16)
+            for i in range(2, len(encoded) - 1, 2):
+                result += chr(int(encoded[i:i + 2], 16) ^ k)
+        return result.strip()
 
     def _searchOnTitle(self, title, media, quality, results, offset=0):
         """
@@ -140,16 +160,18 @@ class YGG(TorrentProvider, MovieProvider):
             links = soup.find_all('a', class_='torrent-name')
             for link in links:
                 detail_url = link['href']
-                if u'/filmvidéo/' in detail_url:
-                    name = link.text.strip()
+                if u'/filmvidéo/film/' in detail_url \
+                        or u'/filmvidéo/animation/' in detail_url \
+                        or u'/filmvidéo/documentaire/' in detail_url:
+                    name = self.parseText(link)
                     td = link.parent
                     url = td.find('a', target='_blank')['href']
                     id_ = tryInt(re.search('\?id=(\d+)', url).group(1))
-                    infos = td.parent.find_all('td')
-                    age = self.parseAge(infos[1].text)
-                    size = self.parseSize(infos[2].text)
-                    seeders = tryInt(infos[3].string)
-                    leechers = tryInt(infos[4].string)
+                    tr = td.parent.find_all('td')
+                    age = self.parseAge(self.parseText(tr[1]))
+                    size = self.parseSize(self.parseText(tr[2]))
+                    seeders = tryInt(self.parseText(tr[3]))
+                    leechers = tryInt(self.parseText(tr[4]))
                     result = {
                         'id': id_,
                         'name': name,
@@ -164,18 +186,17 @@ class YGG(TorrentProvider, MovieProvider):
                         'extra_check': self.extraCheck
                     }
                     results.append(result)
-                    YGG.log.debug(result)
+                    YGG.log.debug('{0}|{1}'.format(
+                        result.get('id'), simplifyString(result.get('name'))))
             # Get next page if we don't have all results
             pagination = soup.find('ul', class_='pagination')
             if pagination:
-                pages = pagination.find_all('li')
-                if pages and len(pages) > 0:
-                    for page in pages:
-                        next_ = tryInt(page.find('a').text)
-                        if next_ > offset:
-                            self._searchOnTitle(title, media, quality,
-                                                results, offset+1)
-                            break
+                for page in pagination.find_all('li'):
+                    next_ = tryInt(page.find('a').text)
+                    if next_ > offset:
+                        self._searchOnTitle(title, media, quality, results,
+                                            offset+1)
+                        break
         except:
             YGG.log.error('Failed searching release from {0}: {1}'.
                           format(self.getName(), traceback.format_exc()))
