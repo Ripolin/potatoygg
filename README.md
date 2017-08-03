@@ -1,7 +1,7 @@
 # potatoygg
 
-[![Build Status](https://travis-ci.org/Ripolin/potato411.svg?branch=ci)](https://travis-ci.org/Ripolin/potato411)
-[![Coverage Status](https://coveralls.io/repos/github/Ripolin/potato411/badge.svg?branch=master)](https://coveralls.io/github/Ripolin/potato411?branch=master)
+[![Build Status](https://travis-ci.org/Ripolin/potatoygg.svg?branch=ci)](https://travis-ci.org/Ripolin/potatoygg)
+[![Coverage Status](https://coveralls.io/repos/github/Ripolin/potatoygg/badge.svg?branch=master)](https://coveralls.io/github/Ripolin/potatoygg?branch=master)
 
 Ygg torrent provider implementation for CouchPotato.
 

@@ -4,7 +4,7 @@ python:
 install:
   - pip install -r requirements.txt
 before_script:
-  - openssl aes-256-cbc -K $encrypted_5e9a1583941e_key -iv $encrypted_5e9a1583941e_iv -in test/test.cfg.enc -out test/test.cfg -d
+  - openssl aes-256-cbc -K $encrypted_3d22425b90f1_key -iv $encrypted_3d22425b90f1_iv -in test/test.cfg.enc -out test/test.cfg -d
 script:
   - python -m pytest test/test.py ygg --pep8 --cov ygg --cov-report term-missing -v
 after_success:
