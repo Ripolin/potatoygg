@@ -1,0 +1,8 @@
+.cache
+.idea
+couchpotato
+
+test.cfg
+wrong.cfg
+*.pyc
+.coverage

@@ -1,0 +1,3 @@
+[submodule "couchpotato"]
+	path = couchpotato
+	url = https://github.com/CouchPotato/CouchPotatoServer.git
