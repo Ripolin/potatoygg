@@ -1,7 +1,7 @@
 # coding: utf8
 from bs4 import BeautifulSoup
 from couchpotato.core.helpers.encoding import simplifyString, tryUrlencode
-from couchpotato.core.helpers.variable import getImdb, tryFloat, tryInt
+from couchpotato.core.helpers.variable import getImdb, tryInt
 from couchpotato.core.logger import CPLog
 from couchpotato.core.media._base.providers.torrent.base import TorrentProvider
 from couchpotato.core.media.movie.providers.base import MovieProvider
@@ -102,14 +102,13 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Retrieve age in days from the date of torrent addition.
         """
-        now = datetime.now()
-        delta = timedelta()
-        matcher = re.search('il y a (\d+) (\S+)', str.strip())
+        result = -1
+        matcher = re.search('il y a (\d+) (\w+)', str.strip())
         if matcher:
+            now = datetime.now()
+            delta = timedelta(days=1)
             value = tryInt(matcher.group(1))
             unit = matcher.group(2)
-            if unit in ['minute', 'minutes', 'heure', 'heures', 'jour']:
-                delta = now - timedelta(days=1)
             if unit == 'jours':
                 delta = now - timedelta(days=value)
             if unit == 'mois':
@@ -118,7 +117,8 @@ class YGG(TorrentProvider, MovieProvider):
                 delta = now - timedelta(days=365)
             if unit == 'ans':
                 delta = now - timedelta(days=value*365)
-        return (now - delta).days
+            result = (now - delta).days
+        return result
 
     def parseText(self, node):
         """
@@ -164,7 +164,7 @@ class YGG(TorrentProvider, MovieProvider):
                 if re.search(u'/filmvidéo/(film|animation|documentaire)/',
                              detail_url):
                     name = self.parseText(link)
-                    id_ = tryInt(re.search('/(\d+)-\S+$', link['href']).
+                    id_ = tryInt(re.search('/(\d+)-[^/\s]+$', link['href']).
                                  group(1))
                     columns = link.parent.parent.find_all('td')
                     age = self.parseAge(self.parseText(columns[1]))
