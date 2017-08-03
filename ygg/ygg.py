@@ -35,7 +35,8 @@ class YGG(TorrentProvider, MovieProvider):
         self.urls = {
             'login': path_www+'/user/login',
             'login_check': path_www,
-            'search': path_www+'/engine/search?{0}'
+            'search': path_www+'/engine/search?{0}',
+            'url': path_www+'/engine/download_torrent?id={0}'
         }
 
     def getLoginParams(self):
@@ -160,18 +161,16 @@ class YGG(TorrentProvider, MovieProvider):
             links = soup.find_all('a', class_='torrent-name')
             for link in links:
                 detail_url = link['href']
-                if u'/filmvidéo/film/' in detail_url \
-                        or u'/filmvidéo/animation/' in detail_url \
-                        or u'/filmvidéo/documentaire/' in detail_url:
+                if re.search(u'/filmvidéo/(film|animation|documentaire)/',
+                             detail_url):
                     name = self.parseText(link)
-                    td = link.parent
-                    url = td.find('a', target='_blank')['href']
-                    id_ = tryInt(re.search('\?id=(\d+)', url).group(1))
-                    tr = td.parent.find_all('td')
-                    age = self.parseAge(self.parseText(tr[1]))
-                    size = self.parseSize(self.parseText(tr[2]))
-                    seeders = tryInt(self.parseText(tr[3]))
-                    leechers = tryInt(self.parseText(tr[4]))
+                    id_ = tryInt(re.search('/(\d+)-\S+$', link['href']).
+                                 group(1))
+                    columns = link.parent.parent.find_all('td')
+                    age = self.parseAge(self.parseText(columns[1]))
+                    size = self.parseSize(self.parseText(columns[2]))
+                    seeders = tryInt(self.parseText(columns[3]))
+                    leechers = tryInt(self.parseText(columns[4]))
                     result = {
                         'id': id_,
                         'name': name,
@@ -179,7 +178,7 @@ class YGG(TorrentProvider, MovieProvider):
                         'leechers': leechers,
                         'size': size,
                         'age': age,
-                        'url': url,
+                        'url': self.urls['url'].format(id_),
                         'detail_url': detail_url,
                         'verified': True,
                         'get_more_info': self.getMoreInfo,
@@ -192,7 +191,7 @@ class YGG(TorrentProvider, MovieProvider):
             pagination = soup.find('ul', class_='pagination')
             if pagination:
                 for page in pagination.find_all('li'):
-                    next_ = tryInt(page.find('a').text)
+                    next_ = tryInt(self.parseText(page.find('a')))
                     if next_ > offset:
                         self._searchOnTitle(title, media, quality, results,
                                             offset+1)
