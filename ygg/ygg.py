@@ -106,18 +106,18 @@ class YGG(TorrentProvider, MovieProvider):
         matcher = re.search('il y a (\d+) (\w+)', str.strip())
         if matcher:
             now = datetime.now()
-            delta = now - timedelta(days=1)
+            added = now - timedelta(days=1)
             value = tryInt(matcher.group(1))
             unit = matcher.group(2)
             if unit == 'jours':
-                delta = now - timedelta(days=value)
+                added = now - timedelta(days=value)
             if unit == 'mois':
-                delta = now - timedelta(days=value*30)  # Average
+                added = now - timedelta(days=value*30)
             if unit == 'an':
-                delta = now - timedelta(days=365)
+                added = now - timedelta(days=365)
             if unit == 'ans':
-                delta = now - timedelta(days=value*365)
-            result = (now - delta).days
+                added = now - timedelta(days=value*365)
+            result = (now - added).days
         return result
 
     def parseText(self, node):
