@@ -106,7 +106,7 @@ class YGG(TorrentProvider, MovieProvider):
         matcher = re.search('il y a (\d+) (\w+)', str.strip())
         if matcher:
             now = datetime.now()
-            delta = timedelta(days=1)
+            delta = now - timedelta(days=1)
             value = tryInt(matcher.group(1))
             unit = matcher.group(2)
             if unit == 'jours':
