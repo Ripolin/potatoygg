@@ -34,7 +34,7 @@ class YGG(TorrentProvider, MovieProvider):
         path_www = YGG.url_scheme+'://'+YGG.domain_name
         self.urls = {
             'login': path_www+'/user/login',
-            'login_check': path_www,
+            'login_check': path_www+'/user/account',
             'search': path_www+'/engine/search?{0}',
             'url': path_www+'/engine/download_torrent?id={0}'
         }
@@ -65,11 +65,7 @@ class YGG(TorrentProvider, MovieProvider):
 
         .. seealso:: YarrProvider.loginCheckSuccess
         """
-        result = False
-        soup = BeautifulSoup(output, 'html.parser')
-        if soup.find(text='Mon compte'):
-            result = True
-        return result
+        return 0 != len(output)
 
     def getMoreInfo(self, nzb):
         """
@@ -103,8 +99,8 @@ class YGG(TorrentProvider, MovieProvider):
         Retrieve age in days from the date of torrent addition.
         """
         result = -1
-        matcher = re.search('(\d+) (minutes|heures|heure|jours|jour|mois|ans|'
-                            'an)', str.strip())
+        matcher = re.search('(\d+) (minute|heure|jours|jour|mois|ans|an)',
+                            str.strip())
         if matcher:
             now = datetime.now()
             added = now - timedelta(days=1)
