@@ -103,7 +103,8 @@ class YGG(TorrentProvider, MovieProvider):
         Retrieve age in days from the date of torrent addition.
         """
         result = -1
-        matcher = re.search('il y a (\d+) (\w+)', str.strip())
+        matcher = re.search('(\d+) (minutes|heures|heure|jours|jour|mois|ans|'
+                            'an)', str.strip())
         if matcher:
             now = datetime.now()
             added = now - timedelta(days=1)
@@ -167,10 +168,10 @@ class YGG(TorrentProvider, MovieProvider):
                     id_ = tryInt(re.search('/(\d+)-[^/\s]+$', link['href']).
                                  group(1))
                     columns = link.parent.parent.find_all('td')
-                    age = self.parseAge(self.parseText(columns[1]))
-                    size = self.parseSize(self.parseText(columns[2]))
-                    seeders = tryInt(self.parseText(columns[3]))
-                    leechers = tryInt(self.parseText(columns[4]))
+                    age = self.parseAge(self.parseText(columns[2]))
+                    size = self.parseSize(self.parseText(columns[3]))
+                    seeders = tryInt(self.parseText(columns[4]))
+                    leechers = tryInt(self.parseText(columns[5]))
                     result = {
                         'id': id_,
                         'name': name,
@@ -185,8 +186,7 @@ class YGG(TorrentProvider, MovieProvider):
                         'extra_check': self.extraCheck
                     }
                     results.append(result)
-                    YGG.log.debug('{0}|{1}'.format(
-                        result.get('id'), simplifyString(result.get('name'))))
+                    YGG.log.debug(result)
             # Get next page if we don't have all results
             pagination = soup.find('ul', class_='pagination')
             if pagination:
