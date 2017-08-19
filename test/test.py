@@ -88,7 +88,6 @@ class TestPotatoYGG:
                 if result['id'] not in ids:
                     ids.append(result['id'])
             assert len(results) == len(ids)  # No duplication
-            assert len(results) > YGG.limit
 
     def test_searchAnim(self):
         ygg = self.setUp()
