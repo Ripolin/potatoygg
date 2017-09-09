@@ -65,7 +65,11 @@ class YGG(TorrentProvider, MovieProvider):
 
         .. seealso:: YarrProvider.loginCheckSuccess
         """
-        return 0 != len(output)
+        result = False
+        soup = BeautifulSoup(output, 'html.parser')
+        if soup.find(output, class_='fa-sign-out'):
+            result = True
+        return result
 
     def getMoreInfo(self, nzb):
         """
@@ -155,8 +159,7 @@ class YGG(TorrentProvider, MovieProvider):
             url = self.urls['search'].format(tryUrlencode(params))
             data = self.getHTMLData(url)
             soup = BeautifulSoup(data, 'html.parser')
-            links = soup.find_all('a', class_='torrent-name')
-            for link in links:
+            for link in soup.find_all('a', class_='torrent-name'):
                 detail_url = link['href']
                 if re.search(u'/filmvidéo/(film|animation|documentaire)/',
                              detail_url):
