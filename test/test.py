@@ -118,6 +118,19 @@ class TestPotatoYGG:
             assert nzb['description'] is not None
             assert ygg.extraCheck(nzb)
 
+    def test_moreInfo(self):
+        ygg = self.setUp()
+        isLogged = ygg.login()
+        assert isLogged
+        if isLogged:
+            nzb = {
+                'detail_url': 'https://yggtorrent.com/torrent/filmvid%C3%83%C2'
+                              '%A9o/film/84032-gremlins%201984%20multi%201080p'
+                              '%20hdlight%20x264%20ac3-mhdgz'
+            }
+            ygg.getMoreInfo(nzb)
+            assert nzb['age'] is not None
+
     def test_download(self):
         ygg = self.setUp()
         url = 'https://yggtorrent.com/engine/download_torrent?id=6103'

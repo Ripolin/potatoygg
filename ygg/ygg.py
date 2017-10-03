@@ -82,6 +82,12 @@ class YGG(TorrentProvider, MovieProvider):
         description = soup.find(id='description')
         if description:
             nzb['description'] = description.prettify()
+        line = soup.find(text='Date de publication').parent.parent
+        pub = line.find_all('td')[1]
+        added = datetime.strptime(pub.getText().split('(')[0].strip(),
+                                  '%d/%m/%Y %H:%M')
+        nzb['age'] = (datetime.now() - added).days
+        self.log.debug(nzb['age'])
 
     def extraCheck(self, nzb):
         """
@@ -96,29 +102,6 @@ class YGG(TorrentProvider, MovieProvider):
         if len(ids) not in [0, 1]:
             YGG.log.info('Too much IMDB ids: {0}'.format(', '.join(ids)))
             result = False
-        return result
-
-    def parseAge(self, str):
-        """
-        Retrieve age in days from the date of torrent addition.
-        """
-        result = -1
-        matcher = re.search('(\d+) (minute|heure|jours|jour|mois|ans|an)',
-                            str.strip())
-        if matcher:
-            now = datetime.now()
-            added = now - timedelta(days=1)
-            value = tryInt(matcher.group(1))
-            unit = matcher.group(2)
-            if unit == 'jours':
-                added = now - timedelta(days=value)
-            if unit == 'mois':
-                added = now - timedelta(days=value*30)
-            if unit == 'an':
-                added = now - timedelta(days=365)
-            if unit == 'ans':
-                added = now - timedelta(days=value*365)
-            result = (now - added).days
         return result
 
     def parseText(self, node):
@@ -167,7 +150,6 @@ class YGG(TorrentProvider, MovieProvider):
                     id_ = tryInt(re.search('/(\d+)-[^/\s]+$', link['href']).
                                  group(1))
                     columns = link.parent.parent.find_all('td')
-                    age = self.parseAge(self.parseText(columns[2]))
                     size = self.parseSize(self.parseText(columns[3]))
                     seeders = tryInt(self.parseText(columns[4]))
                     leechers = tryInt(self.parseText(columns[5]))
@@ -177,7 +159,6 @@ class YGG(TorrentProvider, MovieProvider):
                         'seeders': seeders,
                         'leechers': leechers,
                         'size': size,
-                        'age': age,
                         'url': self.urls['url'].format(id_),
                         'detail_url': detail_url,
                         'verified': True,
