@@ -1,9 +1,12 @@
 # coding: utf8
 from .ygg import YGG
 
+path_www = YGG.url_scheme + '://' + YGG.domain_name
+
 
 def autoload():
     return YGG()
+
 
 config = [{
     'name': 'ygg',
@@ -12,38 +15,41 @@ config = [{
             'tab': 'searcher',
             'list': 'torrent_providers',
             'name': 'Yggtorrent',
-            'description': '<a href="https://yggtorrent.com" target="_blank">Y'
-                           'ggtorrent</a>',
-            'icon': 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAIAAACQkWg2AAAAAXNSR0IAr'
-                    's4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAA'
-                    'H/SURBVDhPtZLNS9RBGMeH6MW2oIiCiKhLeys6dQqjRTxUBLkHpUNEEhE'
-                    'JSZcW25JOkiJRsKYg5UtEi+iWUZDLkhjUIXojyE2SysMqVOb+fjO/efnN'
-                    'zDM903+wh555GJ5n5vk834FniKvFLEBtAFptAIAjNlyWxWOWVjGP3/XoT'
-                    'wPm+2tVSsviUf0+56yLP9zBWJWazHzJoIKpzIqx9bYyh4CcSsvJE/JJUk'
-                    '61qJkOMblTPm3FXc1kVPGkLGz/U1kgZmmOj2ywi1898KxZTDSI/G67/Nu'
-                    'nhUYxvk+OpzC2K1SObqqWX3ggyq22Sx4QhTR/cJgP7rCBB0S+gY/uFQ9T'
-                    'gEAY8r5EtTyNwBfWRczPhX8VTeLuwejWNksDTPlIKupP8qFDXoGL6Maq6'
-                    'uw0sb9+0AzRHx9hm+j2ft5fz66vNfOvQKqod090Mxl17wIZm29vWJZQfJ'
-                    'LvNHCEthN6dQu9khBDzbwvRS8Rmt1MsxvFvRbWuZVeXsc6EjSzRn8uegB'
-                    '0gApy4iJtrxP5NjzRb4fl2Hl6gfDn3TE4+XKQDbeGZ0i8WCYOcCl+/1xw'
-                    'irCuAyCof1vueHCaRL31sQHtXNhWF54l4vE15SeNgAqdjUGuOGccWIiZM'
-                    'xoU81J4BA5FLDpO1uJfwnFr6awvxQofa+Ws9g5grHe8wBn74L9/PufcX1'
-                    '/7jCFM7Z74AAAAAElFTkSuQmCC',
+            'description': '<a href="{0}" target="_blank">Yggtorrent</a>'
+                           .format(path_www),
+            'icon': 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAA'
+                    'LGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mA'
+                    'AAF3CculE8AAABj1BMVEUAAADP/v/P///L///K/v985Oc20NUAo7B95ed'
+                    'm29hk2th5/+iS//9RpIpSp406bV09c2Kp+f6h9/6g9/2f9v2h9/2m+P1r'
+                    '3uFn3+Ni2t5i299k3uJj3eFk3eJk3uJn3+Nr3uFp39xdz85e0dBp3dvt7'
+                    'u1z1c9c0clh2c9+w77g3t674txf18RYx7aZ3NPs6eqnr65u175bx62b3c'
+                    '3Z3dxdyqte2rNd1a9dzKxNloFbxKBTtZJVvpdc16lZyZ9LpINOq4layqF'
+                    'NqohayKBbxaFOmoMyWk5PpIZTr41QqolRrItVtJFUs5BRrIpVtJFNn4I0'
+                    'XlFDlJRUwMBNsLA9h4g5fX49iIlCkpM8hIVElpcpWlYqV1QfQD4BAQEkS'
+                    '0ckSkYCAwMbODYrWVQWLSxWyL9PtaUQIB0ZMi4bNTEuY1wuYVsAAAAjSk'
+                    'U3dm4XLyxb2bpWxqsXLyo/jHpKoo0oT0YbNS8WKSUqU0khQDkXMCs+inM'
+                    'hRTpZz6k/jHQiRDsbNy8lSz8jRz0dOjMtY1L////0lPd2AAAAUXRSTlMA'
+                    'AAAAAAAAAAAAAAAAAAAAAAICAgICAimBp6mpqamnhCsy09c2DZP6oANPu'
+                    'Ov5ujIPr+umNW76+3MNguL09fX19fX144cPBSdBQ0NDQ0NBKAUzAVOdAA'
+                    'AAb0lEQVQoz53PMQ4BURhF4f97oRCRic4GNBMJiUKmUVmyRkWhobYGKok'
+                    'FkKcweUIlTndObnPFF34JVMgpp6t76BpCBLjQG5l6EY7OxswV9tQ0xbeY'
+                    'Wb4HG/RrqxLWTgaToo8OB1EtWs+J3c1fXz55Ats0Ecm4zZNfAAAAAElFT'
+                    'kSuQmCC',
             'wizard': True,
             'options': [
                 {
                     'name': 'enabled',
                     'type': 'enabler',
-                    'default': False,
+                    'default': False
                 },
                 {
                     'name': 'username',
-                    'default': '',
+                    'default': ''
                 },
                 {
                     'name': 'password',
                     'default': '',
-                    'type': 'password',
+                    'type': 'password'
                 },
                 {
                     'name': 'seed_ratio',
@@ -51,7 +57,7 @@ config = [{
                     'type': 'float',
                     'default': 1,
                     'description': 'Will not be (re)moved until this seed'
-                                   ' ratio is met.',
+                                   ' ratio is met.'
                 },
                 {
                     'name': 'seed_time',
@@ -59,7 +65,7 @@ config = [{
                     'type': 'int',
                     'default': 40,
                     'description': 'Will not be (re)moved until this seed time'
-                                   ' (in hours) is met.',
+                                   ' (in hours) is met.'
                 },
                 {
                     'name': 'extra_score',
@@ -68,9 +74,8 @@ config = [{
                     'type': 'int',
                     'default': 20,
                     'description': 'Starting score for each release found via'
-                                   ' this provider.',
-                }
-            ]
+                                   ' this provider.'
+                }]
         }
     ]
 }]

@@ -1,14 +1,14 @@
 # coding: utf8
+import re
+import traceback
+from datetime import datetime
+
 from bs4 import BeautifulSoup
 from couchpotato.core.helpers.encoding import simplifyString, tryUrlencode
 from couchpotato.core.helpers.variable import getImdb, tryInt
 from couchpotato.core.logger import CPLog
 from couchpotato.core.media._base.providers.torrent.base import TorrentProvider
 from couchpotato.core.media.movie.providers.base import MovieProvider
-from datetime import datetime
-
-import re
-import traceback
 
 
 class YGG(TorrentProvider, MovieProvider):
@@ -19,7 +19,7 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    domain_name = 'yggtorrent.com'
+    domain_name = 'ww1.yggtorrent.com'
     limit = 25
     login_fail_msg = 'Ces identifiants sont invalides'
     http_time_between_calls = 0
@@ -31,12 +31,12 @@ class YGG(TorrentProvider, MovieProvider):
         """
         TorrentProvider.__init__(self)
         MovieProvider.__init__(self)
-        path_www = YGG.url_scheme+'://'+YGG.domain_name
+        path_www = YGG.url_scheme + '://' + YGG.domain_name
         self.urls = {
-            'login': path_www+'/user/login',
-            'login_check': path_www+'/user/account',
-            'search': path_www+'/engine/search?{0}',
-            'url': path_www+'/engine/download_torrent?id={0}'
+            'login': path_www + '/user/login',
+            'login_check': path_www + '/user/account',
+            'search': path_www + '/engine/search?{0}',
+            'url': path_www + '/engine/download_torrent?id={0}'
         }
 
     def getLoginParams(self):
@@ -135,10 +135,11 @@ class YGG(TorrentProvider, MovieProvider):
         """
         try:
             params = {
-                'q': simplifyString(title)
+                'q': simplifyString(title),
+                'category': 2145  # Film/Vidéo
             }
             if offset > 0:
-                params['page'] = offset*YGG.limit
+                params['page'] = offset * YGG.limit
             url = self.urls['search'].format(tryUrlencode(params))
             data = self.getHTMLData(url)
             soup = BeautifulSoup(data, 'html.parser')
@@ -174,7 +175,7 @@ class YGG(TorrentProvider, MovieProvider):
                     next_ = tryInt(self.parseText(page.find('a')))
                     if next_ > offset:
                         self._searchOnTitle(title, media, quality, results,
-                                            offset+1)
+                                            offset + 1)
                         break
         except:
             YGG.log.error('Failed searching release from {0}: {1}'.

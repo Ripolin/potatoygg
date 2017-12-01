@@ -1,14 +1,15 @@
 # coding: utf8
-from os.path import dirname
 import logging
 import os
-import requests
 import sys
 import time
+from os.path import dirname
+
+import requests
 
 from cache import BaseCache
-from couchpotato.core.settings import Settings
 from couchpotato.core.plugins.quality import QualityPlugin
+from couchpotato.core.settings import Settings
 from couchpotato.environment import Env
 from ygg import YGG
 
@@ -24,10 +25,9 @@ class NoCache(BaseCache):
 
 
 class TestPotatoYGG:
-
     def setUp(self, conf='/test.cfg'):
         settings = Settings()
-        settings.setFile(base_path+conf)
+        settings.setFile(base_path + conf)
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
         Env.set('cache', NoCache())
@@ -48,7 +48,7 @@ class TestPotatoYGG:
 
     def test_loginCheck(self):
         ygg = self.setUp()
-        ygg.last_login_check = time.time()-7200
+        ygg.last_login_check = time.time() - 7200
         isLogged = ygg.login()
         assert isLogged
         isLogged = ygg.login()
@@ -109,10 +109,11 @@ class TestPotatoYGG:
         isLogged = ygg.login()
         assert isLogged
         if isLogged:
+            path_www = YGG.url_scheme + '://' + YGG.domain_name
             nzb = {
-                'detail_url': 'https://yggtorrent.com/torrent/filmvid%C3%A9o/f'
-                              'ilm/10897-jurassic+park+collection+1993-2015+mu'
-                              'lti+1080p'
+                'detail_url': path_www + '/torrent/filmvid%C3%A9o/film/10897-j'
+                                         'urassic+park+collection+1993-2015+mu'
+                                         'lti+1080p'
             }
             ygg.getMoreInfo(nzb)
             assert nzb['description'] is not None
@@ -123,16 +124,17 @@ class TestPotatoYGG:
         isLogged = ygg.login()
         assert isLogged
         if isLogged:
+            path_www = YGG.url_scheme + '://' + YGG.domain_name
             nzb = {
-                'detail_url': 'https://yggtorrent.com/torrent/filmvid%C3%83%C2'
-                              '%A9o/film/84032-gremlins%201984%20multi%201080p'
-                              '%20hdlight%20x264%20ac3-mhdgz'
+                'detail_url': path_www + '/torrent/filmvid%C3%83%C2%A9o/film/8'
+                                         '4032-gremlins%201984%20multi%201080p'
+                                         '%20hdlight%20x264%20ac3-mhdgz'
             }
             ygg.getMoreInfo(nzb)
             assert nzb['age'] is not None
 
     def test_download(self):
         ygg = self.setUp()
-        url = 'https://yggtorrent.com/engine/download_torrent?id=6103'
+        url = ygg.urls['url'].format('6103')
         data = ygg.loginDownload(url)
         assert len(data) > 0
