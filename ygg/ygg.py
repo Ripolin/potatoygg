@@ -19,7 +19,7 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    domain_name = 'ww1.yggtorrent.com'
+    domain_name = 'yggtorrent.com'
     limit = 25
     login_fail_msg = 'Ces identifiants sont invalides'
     http_time_between_calls = 0
