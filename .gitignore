@@ -5,3 +5,5 @@ test.cfg
 wrong.cfg
 *.pyc
 .coverage
+*.iml
+
