@@ -48,7 +48,7 @@ class YGG(TorrentProvider, MovieProvider):
         return {
             'id': self.conf('username'),
             'pass': self.conf('password'),
-            'submit': ''
+            'bGodkend': ''
         }
 
     def loginSuccess(self, output):
@@ -57,7 +57,11 @@ class YGG(TorrentProvider, MovieProvider):
 
         .. seealso:: YarrProvider.loginSuccess
         """
-        return 0 == len(output)
+        if len(output) == 0:
+            result = True
+        else:
+            result = self.loginCheckSuccess(output)
+        return result
 
     def loginCheckSuccess(self, output):
         """
@@ -67,7 +71,7 @@ class YGG(TorrentProvider, MovieProvider):
         """
         result = False
         soup = BeautifulSoup(output, 'html.parser')
-        if soup.find(output, class_='fa-sign-out'):
+        if soup.find(class_='fa-sign-out'):
             result = True
         return result
 
