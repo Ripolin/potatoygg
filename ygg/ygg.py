@@ -57,9 +57,8 @@ class YGG(TorrentProvider, MovieProvider):
 
         .. seealso:: YarrProvider.loginSuccess
         """
-        if len(output) == 0:
-            result = True
-        else:
+        result = len(output) == 0
+        if not result:
             result = self.loginCheckSuccess(output)
         return result
 
@@ -177,7 +176,7 @@ class YGG(TorrentProvider, MovieProvider):
             if pagination:
                 for page in pagination.find_all('li'):
                     next_ = tryInt(self.parseText(page.find('a')))
-                    if next_ > offset:
+                    if next_ > offset + 1:
                         self._searchOnTitle(title, media, quality, results,
                                             offset + 1)
                         break
