@@ -7,7 +7,7 @@ Ygg torrent provider implementation for CouchPotato.
 
 ## How to install
 
-Once checkout, copy the `ygg` directory directly under the `DATA_DIR/data/customs_plugin` directory of your CouchPotato server. When it's done, restart it. You'll see a new entry Yggtorrent on the Settings>Searcher location.
+Once checkout, copy the `ygg` directory directly under the `DATA_DIR/customs_plugin` directory of your CouchPotato server. When it's done, restart it. You'll see a new entry Yggtorrent on the Settings>Searcher location.
 
 ## Development
 

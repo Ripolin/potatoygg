@@ -74,15 +74,15 @@ class TestPotatoYGG:
         ygg = self.setUp()
         results = []
         media = {
-            'identifier': 'tt0258463',
+            'identifier': 'tt0120737',
             'type': 'movie',
             'category': {'required': ''},
-            'info': {'year': 2009}
+            'info': {'year': 2001}
         }
         isLogged = ygg.login()
         assert isLogged
         if isLogged:
-            ygg._searchOnTitle(u'avatar', media, qualities[2], results)
+            ygg._searchOnTitle(u'seigneur', media, qualities[2], results)
             ids = list()
             for result in results:
                 if result['id'] not in ids:

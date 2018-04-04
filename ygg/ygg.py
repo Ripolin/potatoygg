@@ -4,6 +4,7 @@ import traceback
 from datetime import datetime
 
 from bs4 import BeautifulSoup
+
 from couchpotato.core.helpers.encoding import simplifyString, tryUrlencode
 from couchpotato.core.helpers.variable import getImdb, tryInt
 from couchpotato.core.logger import CPLog
@@ -19,9 +20,8 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    domain_name = 'yggtorrent.com'
-    limit = 25
-    login_fail_msg = 'Ces identifiants sont invalides'
+    domain_name = 'yggtorrent.is'
+    limit = 50
     http_time_between_calls = 0
     log = CPLog(__name__)
 
@@ -36,7 +36,8 @@ class YGG(TorrentProvider, MovieProvider):
             'login': path_www + '/user/login',
             'login_check': path_www + '/user/account',
             'search': path_www + '/engine/search?{0}',
-            'url': path_www + '/engine/download_torrent?id={0}'
+            'url': path_www + '/engine/download_torrent?id={0}',
+            'torrent': path_www + '/torrent'
         }
 
     def getLoginParams(self):
@@ -47,8 +48,7 @@ class YGG(TorrentProvider, MovieProvider):
         """
         return {
             'id': self.conf('username'),
-            'pass': self.conf('password'),
-            'bGodkend': ''
+            'pass': self.conf('password')
         }
 
     def loginSuccess(self, output):
@@ -57,10 +57,7 @@ class YGG(TorrentProvider, MovieProvider):
 
         .. seealso:: YarrProvider.loginSuccess
         """
-        result = len(output) == 0
-        if not result:
-            result = self.loginCheckSuccess(output)
-        return result
+        return len(output) == 0
 
     def loginCheckSuccess(self, output):
         """
@@ -70,7 +67,7 @@ class YGG(TorrentProvider, MovieProvider):
         """
         result = False
         soup = BeautifulSoup(output, 'html.parser')
-        if soup.find(class_='fa-sign-out'):
+        if soup.find(text=' Déconnexion'):
             result = True
         return result
 
@@ -82,12 +79,11 @@ class YGG(TorrentProvider, MovieProvider):
         """
         data = self.getHTMLData(nzb['detail_url'])
         soup = BeautifulSoup(data, 'html.parser')
-        description = soup.find(id='description')
+        description = soup.find(class_='description-header').find_next('div')
         if description:
             nzb['description'] = description.prettify()
-        line = soup.find(text='Date de publication').parent.parent
-        pub = line.find_all('td')[1]
-        added = datetime.strptime(pub.getText().split('(')[0].strip(),
+        line = soup.find(text=u'Uploadé le').find_next('td')
+        added = datetime.strptime(line.getText().split('(')[0].strip(),
                                   '%d/%m/%Y %H:%M')
         nzb['age'] = (datetime.now() - added).days
         self.log.debug(nzb['age'])
@@ -109,22 +105,9 @@ class YGG(TorrentProvider, MovieProvider):
 
     def parseText(self, node):
         """
-        When a '@' char is present in the tag content, cloudfare can
-        interprets it as a email and by default protect it (cf. https://suppor
-        t.cloudflare.com/hc/en-us/articles/200170016-What-is-Email-Address-Obf
-        uscation-)
+        Retrieve the text content from a HTML node.
         """
         result = node.getText()
-        span = node.find(class_='__cf_email__')
-        if span:
-            """
-            https://stackoverflow.com/questions/36911296/scraping-of-protected-email
-            """
-            result = ''
-            encoded = span['data-cfemail']
-            k = int(encoded[:2], 16)
-            for i in range(2, len(encoded) - 1, 2):
-                result += chr(int(encoded[i:i + 2], 16) ^ k)
         return result.strip()
 
     def _searchOnTitle(self, title, media, quality, results, offset=0):
@@ -138,15 +121,20 @@ class YGG(TorrentProvider, MovieProvider):
         """
         try:
             params = {
-                'q': simplifyString(title),
-                'category': 2145  # Film/Vidéo
+                'category': 2145,  # Film/Vidéo
+                'description': '',
+                'do': 'search',
+                'file': '',
+                'name': simplifyString(title),
+                'sub_category': 'all',
+                'uploader': ''
             }
             if offset > 0:
                 params['page'] = offset * YGG.limit
             url = self.urls['search'].format(tryUrlencode(params))
             data = self.getHTMLData(url)
             soup = BeautifulSoup(data, 'html.parser')
-            for link in soup.find_all('a', class_='torrent-name'):
+            for link in soup.find_all(href=re.compile(self.urls['torrent'])):
                 detail_url = link['href']
                 if re.search(u'/filmvidéo/(film|animation|documentaire)/',
                              detail_url):
@@ -154,9 +142,9 @@ class YGG(TorrentProvider, MovieProvider):
                     id_ = tryInt(re.search('/(\d+)-[^/\s]+$', link['href']).
                                  group(1))
                     columns = link.parent.parent.find_all('td')
-                    size = self.parseSize(self.parseText(columns[3]))
-                    seeders = tryInt(self.parseText(columns[4]))
-                    leechers = tryInt(self.parseText(columns[5]))
+                    size = self.parseSize(self.parseText(columns[5]))
+                    seeders = tryInt(self.parseText(columns[7]))
+                    leechers = tryInt(self.parseText(columns[8]))
                     result = {
                         'id': id_,
                         'name': name,
