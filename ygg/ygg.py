@@ -1,15 +1,14 @@
 # coding: utf8
 import re
 import traceback
-from datetime import datetime
 
 from bs4 import BeautifulSoup
-
 from couchpotato.core.helpers.encoding import simplifyString, tryUrlencode
 from couchpotato.core.helpers.variable import getImdb, tryInt
 from couchpotato.core.logger import CPLog
 from couchpotato.core.media._base.providers.torrent.base import TorrentProvider
 from couchpotato.core.media.movie.providers.base import MovieProvider
+from datetime import datetime
 
 
 class YGG(TorrentProvider, MovieProvider):
@@ -36,8 +35,8 @@ class YGG(TorrentProvider, MovieProvider):
             'login': path_www + '/user/login',
             'login_check': path_www + '/user/account',
             'search': path_www + '/engine/search?{0}',
-            'url': path_www + '/engine/download_torrent?id={0}',
-            'torrent': path_www + '/torrent'
+            'torrent': path_www + '/torrent',
+            'url': path_www + '/engine/download_torrent?id={0}'
         }
 
     def getLoginParams(self):
@@ -67,7 +66,7 @@ class YGG(TorrentProvider, MovieProvider):
         """
         result = False
         soup = BeautifulSoup(output, 'html.parser')
-        if soup.find(text=' Déconnexion'):
+        if soup.find(text=u'Déconnexion'):
             result = True
         return result
 
@@ -107,8 +106,7 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Retrieve the text content from a HTML node.
         """
-        result = node.getText()
-        return result.strip()
+        return node.getText().strip()
 
     def _searchOnTitle(self, title, media, quality, results, offset=0):
         """
@@ -134,7 +132,8 @@ class YGG(TorrentProvider, MovieProvider):
             url = self.urls['search'].format(tryUrlencode(params))
             data = self.getHTMLData(url)
             soup = BeautifulSoup(data, 'html.parser')
-            for link in soup.find_all(href=re.compile(self.urls['torrent'])):
+            filter_ = '^{0}'.format(self.urls['torrent'])
+            for link in soup.find_all(href=re.compile(filter_)):
                 detail_url = link['href']
                 if re.search(u'/filmvidéo/(film|animation|documentaire)/',
                              detail_url):
