@@ -19,7 +19,7 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    domain_name = 'yggtorrent.is'
+    domain_name = 'ww1.yggtorrent.is'
     limit = 50
     http_time_between_calls = 0
     log = CPLog(__name__)
