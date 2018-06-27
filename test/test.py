@@ -69,6 +69,8 @@ class TestPotatoYGG:
             ygg._searchOnTitle(u'the bourne identity', media, qualities[2],
                                results)
             assert len(results) > 0
+            for result in results:
+                assert 0 < result['size']
 
     def test_searchMoviePagination(self):
         ygg = self.setUp()

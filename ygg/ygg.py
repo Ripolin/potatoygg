@@ -38,6 +38,9 @@ class YGG(TorrentProvider, MovieProvider):
             'torrent': path_www + '/torrent',
             'url': path_www + '/engine/download_torrent?id={0}'
         }
+        self.size_gb.append('go')
+        self.size_mb.append('mo')
+        self.size_kb.append('ko')
 
     def getLoginParams(self):
         """
