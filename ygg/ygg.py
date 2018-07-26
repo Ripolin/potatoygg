@@ -10,10 +10,12 @@ from couchpotato.core.media._base.providers.torrent.base import TorrentProvider
 from couchpotato.core.media.movie.providers.base import MovieProvider
 from datetime import datetime
 
+log = CPLog(__name__)
+
 
 class YGG(TorrentProvider, MovieProvider):
     """
-    Couchpotato plugin to search movies torrents on www.yggtorrent.com.
+    Couchpotato plugin to search movies torrents on YGG.
 
     .. seealso:: YarrProvider.login, Plugin.wait
     """
@@ -22,30 +24,50 @@ class YGG(TorrentProvider, MovieProvider):
     domain_name = 'ww2.yggtorrent.is'
     limit = 50
     http_time_between_calls = 0
-    log = CPLog(__name__)
 
     def __init__(self):
         """
-        Default constructor
+        Default constructor.
         """
         TorrentProvider.__init__(self)
         MovieProvider.__init__(self)
-        path_www = YGG.url_scheme + '://' + YGG.domain_name
         self.urls = {
-            'login': path_www + '/user/login',
-            'login_check': path_www + '/user/account',
-            'search': path_www + '/engine/search?{0}',
-            'torrent': path_www + '/torrent',
-            'url': path_www + '/engine/download_torrent?id={0}'
+            'login': YGG.getBasePath() + '/user/login',
+            'login_check': YGG.getBasePath() + '/user/account',
+            'search': YGG.getBasePath() + '/engine/search?{}',
+            'torrent': YGG.getBasePath() + '/torrent',
+            'url': YGG.getBasePath() + '/engine/download_torrent?id={}'
         }
         self.size_gb.append('go')
         self.size_mb.append('mo')
         self.size_kb.append('ko')
 
+    @staticmethod
+    def getBasePath():
+        """
+        Get YGG's base path URL.
+
+        :return: YGG's base path URL
+        :rtype: str
+        """
+        return '{}://{}'.format(YGG.url_scheme, YGG.domain_name)
+
+    @staticmethod
+    def parseText(node):
+        """
+        Retrieve the text content from a HTML node.
+
+        :return: Text content of a HTML node
+        :rtype: str
+        """
+        return node.getText().strip()
+
     def getLoginParams(self):
         """
         Return YGG login parameters.
 
+        :return: A login object with a login and a password attributes
+        :rtype: dict
         .. seealso:: YarrProvider.getLoginParams
         """
         return {
@@ -57,6 +79,10 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Check server's response on authentication.
 
+        :param output: HTML body returned by a login request
+        :type output: str
+        :return: The signin operation result
+        :rtype: bool
         .. seealso:: YarrProvider.loginSuccess
         """
         return len(output) == 0
@@ -65,11 +91,16 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Check if we are still connected.
 
+        :param output: HTML body returned by a login request
+        :type output: str
+        :return: The checking result
+        :rtype: bool
         .. seealso:: YarrProvider.loginCheckSuccess
         """
+        log.debug(output)
         result = False
         soup = BeautifulSoup(output, 'html.parser')
-        if soup.find(text=u'Déconnexion'):
+        if soup.find(text=u' Déconnexion'):
             result = True
         return result
 
@@ -77,6 +108,8 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Get details about a torrent.
 
+        :param nzb: Representation of a torrent
+        :type nzb: dict
         .. seealso:: MovieSearcher.correctRelease
         """
         data = self.getHTMLData(nzb['detail_url'])
@@ -88,7 +121,7 @@ class YGG(TorrentProvider, MovieProvider):
         added = datetime.strptime(line.getText().split('(')[0].strip(),
                                   '%d/%m/%Y %H:%M')
         nzb['age'] = (datetime.now() - added).days
-        self.log.debug(nzb['age'])
+        log.debug(nzb['age'])
 
     def extraCheck(self, nzb):
         """
@@ -96,20 +129,18 @@ class YGG(TorrentProvider, MovieProvider):
         reference to prevent a movie bundle downloading. CouchPotato
         is not able to extract a specific movie from an archive.
 
+        :param nzb: Representation of a torrent
+        :type nzb: dict
+        :return: The checking result
+        :rtype: bool
         .. seealso:: MovieSearcher.correctRelease
         """
         result = True
         ids = getImdb(nzb.get('description', ''), multiple=True)
         if len(ids) not in [0, 1]:
-            YGG.log.info('Too much IMDB ids: {0}'.format(', '.join(ids)))
+            log.info('Too much IMDB ids: {}'.format(', '.join(ids)))
             result = False
         return result
-
-    def parseText(self, node):
-        """
-        Retrieve the text content from a HTML node.
-        """
-        return node.getText().strip()
 
     def _searchOnTitle(self, title, media, quality, results, offset=0):
         """
@@ -118,6 +149,16 @@ class YGG(TorrentProvider, MovieProvider):
         Furthermore the URL must stay generic to use native CouchPotato
         caching feature.
 
+        :param title: Movie's title
+        :type title: str
+        :param media: Movie's metadata
+        :type media: dict
+        :param quality: Movie's quality target
+        :type quality: dict
+        :param results: Where to append finded torrents
+        :type results: list
+        :param offset: Page index when pagination is on
+        :type offset: int
         .. seealso:: YarrProvider.search
         """
         try:
@@ -135,18 +176,18 @@ class YGG(TorrentProvider, MovieProvider):
             url = self.urls['search'].format(tryUrlencode(params))
             data = self.getHTMLData(url)
             soup = BeautifulSoup(data, 'html.parser')
-            filter_ = '^{0}'.format(self.urls['torrent'])
+            filter_ = '^{}'.format(self.urls['torrent'])
             for link in soup.find_all(href=re.compile(filter_)):
                 detail_url = link['href']
                 if re.search(u'/filmvidéo/(film|animation|documentaire)/',
                              detail_url):
-                    name = self.parseText(link)
+                    name = YGG.parseText(link)
                     id_ = tryInt(re.search('/(\d+)-[^/\s]+$', link['href']).
                                  group(1))
                     columns = link.parent.parent.find_all('td')
-                    size = self.parseSize(self.parseText(columns[5]))
-                    seeders = tryInt(self.parseText(columns[7]))
-                    leechers = tryInt(self.parseText(columns[8]))
+                    size = self.parseSize(YGG.parseText(columns[5]))
+                    seeders = tryInt(YGG.parseText(columns[7]))
+                    leechers = tryInt(YGG.parseText(columns[8]))
                     result = {
                         'id': id_,
                         'name': name,
@@ -160,16 +201,16 @@ class YGG(TorrentProvider, MovieProvider):
                         'extra_check': self.extraCheck
                     }
                     results.append(result)
-                    YGG.log.debug(result)
+                    log.debug(result)
             # Get next page if we don't have all results
             pagination = soup.find('ul', class_='pagination')
             if pagination:
                 for page in pagination.find_all('li'):
-                    next_ = tryInt(self.parseText(page.find('a')))
+                    next_ = tryInt(YGG.parseText(page.find('a')))
                     if next_ > offset + 1:
                         self._searchOnTitle(title, media, quality, results,
                                             offset + 1)
                         break
         except:
-            YGG.log.error('Failed searching release from {0}: {1}'.
-                          format(self.getName(), traceback.format_exc()))
+            log.error('Failed searching release from {}: {}'.
+                      format(self.getName(), traceback.format_exc()))

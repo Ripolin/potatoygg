@@ -1,8 +1,6 @@
 # coding: utf8
 from .ygg import YGG
 
-path_www = YGG.url_scheme + '://' + YGG.domain_name
-
 
 def autoload():
     return YGG()
@@ -16,7 +14,7 @@ config = [{
             'list': 'torrent_providers',
             'name': 'Yggtorrent',
             'description': '<a href="{0}" target="_blank">Yggtorrent</a>'
-                           .format(path_www),
+                           .format(YGG.getBasePath()),
             'icon': 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAA'
                     'LGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mA'
                     'AAF3CculE8AAABj1BMVEUAAADP/v/P///L///K/v985Oc20NUAo7B95ed'

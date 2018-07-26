@@ -1,22 +1,25 @@
 # coding: utf8
 import logging
 import os
-
 import requests
 import sys
 import time
 from cache import BaseCache
+from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.quality import QualityPlugin
 from couchpotato.core.settings import Settings
 from couchpotato.environment import Env
 from os.path import dirname
-
 from ygg import YGG
 
 base_path = dirname(os.path.abspath(__file__))
 plug = QualityPlugin()
 qualities = plug.qualities
-handler = logging.StreamHandler(sys.stdout)
+handler = logging.StreamHandler()
+log = CPLog(__name__)
+log.logger.setLevel('DEBUG')
+log.logger.addHandler(handler)
+requests.packages.urllib3.disable_warnings()
 
 
 class NoCache(BaseCache):
@@ -31,28 +34,23 @@ class TestPotatoYGG:
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
         Env.set('cache', NoCache())
-        YGG.log.logger.setLevel('DEBUG')
-        YGG.log.logger.addHandler(handler)
         return YGG()
 
     def test_loginKO(self):
-        ygg = self.setUp(conf='/wrong.cfg')
+        ygg = self.setUp('/wrong.cfg')
         assert not ygg.login()
 
     def test_login(self):
         ygg = self.setUp()
-        isLogged = ygg.login()
-        assert isLogged
-        isLogged = ygg.login()
-        assert isLogged
+        assert ygg.login()
 
     def test_loginCheck(self):
         ygg = self.setUp()
-        ygg.last_login_check = time.time() - 7200
         isLogged = ygg.login()
         assert isLogged
-        isLogged = ygg.login()
-        assert isLogged
+        if isLogged:
+            ygg.last_login_check = time.time() - 7200
+            assert ygg.login()
 
     def test_searchMovie(self):
         ygg = self.setUp()
@@ -113,13 +111,13 @@ class TestPotatoYGG:
         if isLogged:
             path_torrent = ygg.urls['torrent']
             nzb = {
-                'detail_url': path_torrent + '/filmvid%C3%A9o/film/10897-juras'
-                                             'sic+park+collection+1993-2015+mu'
-                                             'lti+1080p'
+                'detail_url': path_torrent + '/filmvid%C3%A9o/film/41240-integ'
+                                             'rale+alien+multi+1080p+hdlight+x'
+                                             '264+ac3-mhdgz'
             }
             ygg.getMoreInfo(nzb)
             assert nzb['description'] is not None
-            assert ygg.extraCheck(nzb)
+            assert not ygg.extraCheck(nzb)
 
     def test_moreInfo(self):
         ygg = self.setUp()
