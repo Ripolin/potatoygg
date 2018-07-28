@@ -21,7 +21,7 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    domain_name = 'ww2.yggtorrent.is'
+    url_hostname = 'ww3.yggtorrent.is'
     limit = 50
     http_time_between_calls = 0
 
@@ -50,7 +50,7 @@ class YGG(TorrentProvider, MovieProvider):
         :return: YGG's base path URL
         :rtype: str
         """
-        return '{}://{}'.format(YGG.url_scheme, YGG.domain_name)
+        return '{}://{}'.format(YGG.url_scheme, YGG.url_hostname)
 
     @staticmethod
     def parseText(node):
@@ -97,7 +97,6 @@ class YGG(TorrentProvider, MovieProvider):
         :rtype: bool
         .. seealso:: YarrProvider.loginCheckSuccess
         """
-        log.debug(output)
         result = False
         soup = BeautifulSoup(output, 'html.parser')
         if soup.find(text=u' Déconnexion'):
@@ -142,6 +141,30 @@ class YGG(TorrentProvider, MovieProvider):
             result = False
         return result
 
+    def buildUrl(self, title, offset):
+        """
+        Build encoded searchin URL for YGG.
+
+        :param title: Movie's title
+        :type title: str
+        :param offset: Page index
+        :type offset: int
+        :return: Searching URL
+        :rtype: str
+        """
+        params = {
+            'category': 2145,  # Film/Vidéo
+            'description': '',
+            'do': 'search',
+            'file': '',
+            'name': simplifyString(title),
+            'sub_category': 'all',
+            'uploader': ''
+        }
+        if offset > 0:
+            params['page'] = offset * YGG.limit
+        return self.urls['search'].format(tryUrlencode(params))
+
     def _searchOnTitle(self, title, media, quality, results, offset=0):
         """
         Do a search based on possible titles. This function doesn't check
@@ -162,19 +185,7 @@ class YGG(TorrentProvider, MovieProvider):
         .. seealso:: YarrProvider.search
         """
         try:
-            params = {
-                'category': 2145,  # Film/Vidéo
-                'description': '',
-                'do': 'search',
-                'file': '',
-                'name': simplifyString(title),
-                'sub_category': 'all',
-                'uploader': ''
-            }
-            if offset > 0:
-                params['page'] = offset * YGG.limit
-            url = self.urls['search'].format(tryUrlencode(params))
-            data = self.getHTMLData(url)
+            data = self.getHTMLData(self.buildUrl(title, offset))
             soup = BeautifulSoup(data, 'html.parser')
             filter_ = '^{}'.format(self.urls['torrent'])
             for link in soup.find_all(href=re.compile(filter_)):

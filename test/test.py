@@ -4,6 +4,7 @@ import os
 import requests
 import sys
 import time
+
 from cache import BaseCache
 from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.quality import QualityPlugin
