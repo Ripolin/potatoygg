@@ -21,7 +21,7 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    url_hostname = 'ww3.yggtorrent.is'
+    url_hostname = 'ww4.yggtorrent.is'
     limit = 50
     http_time_between_calls = 0
 
@@ -169,8 +169,6 @@ class YGG(TorrentProvider, MovieProvider):
         """
         Do a search based on possible titles. This function doesn't check
         the quality because CouchPotato do the job when parsing results.
-        Furthermore the URL must stay generic to use native CouchPotato
-        caching feature.
 
         :param title: Movie's title
         :type title: str

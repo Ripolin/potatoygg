@@ -139,3 +139,17 @@ class TestPotatoYGG:
         url = ygg.urls['url'].format('6103')
         data = ygg.loginDownload(url)
         assert len(data) > 0
+
+    def test_exception(self):
+        ygg = self.setUp()
+        media = {
+            'identifier': 'tt0258463',
+            'type': 'movie',
+            'category': {'required': ''},
+            'info': {'year': 2002}
+        }
+        isLogged = ygg.login()
+        assert isLogged
+        if isLogged:
+            ygg._searchOnTitle(u'the bourne identity', media, qualities[2],
+                               None)
