@@ -186,7 +186,8 @@ class YGG(TorrentProvider, MovieProvider):
             data = self.getHTMLData(self.buildUrl(title, offset))
             soup = BeautifulSoup(data, 'html.parser')
             filter_ = '^{}'.format(self.urls['torrent'])
-            for link in soup.find_all(href=re.compile(filter_)):
+            for link in soup.find(class_='results').find_all(
+                    href=re.compile(filter_)):
                 detail_url = link['href']
                 if re.search(u'/filmvidéo/(film|animation|documentaire)/',
                              detail_url):
