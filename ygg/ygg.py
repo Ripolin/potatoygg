@@ -21,7 +21,7 @@ class YGG(TorrentProvider, MovieProvider):
     """
 
     url_scheme = 'https'
-    url_hostname = 'www9.yggtorrent.to'
+    url_hostname = 'www8.yggtorrent.to'
     limit = 50
     http_time_between_calls = 0
 
