@@ -13,8 +13,7 @@ config = [{
             'tab': 'searcher',
             'list': 'torrent_providers',
             'name': 'Yggtorrent',
-            'description': '<a href="{0}" target="_blank">Yggtorrent</a>'
-                           .format(YGG.getBasePath()),
+            'description': 'La communauté bittorrent francophone',
             'icon': 'iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABGdBTUEAA'
                     'LGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mA'
                     'AAF3CculE8AAABj1BMVEUAAADP/v/P///L///K/v985Oc20NUAo7B95ed'
@@ -39,6 +38,10 @@ config = [{
                     'name': 'enabled',
                     'type': 'enabler',
                     'default': False
+                },
+                {
+                    'name': 'url',
+                    'default': 'https://www8.yggtorrent.to'
                 },
                 {
                     'name': 'username',

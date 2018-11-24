@@ -6,7 +6,7 @@
 
 ## How to run
 
-Before run tests, create inside the test dir a file named `test.cfg` by copying the file `example.cfg`. Fill the properties `username` and `password` with your Yggtorrent account information.
+Before run tests, create inside the test dir a file named `test.cfg` by copying the file `example.cfg`. Fill the properties `url`, `username` and `password` with your Yggtorrent account information.
 
 Now you're able to run unit tests by launching the command : ```$python -m pytest test/test.py ygg --pep8 --cov ygg --cov-report term-missing```
 

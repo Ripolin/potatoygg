@@ -3,6 +3,7 @@ import re
 import traceback
 
 from bs4 import BeautifulSoup
+from couchpotato.core.event import addEvent
 from couchpotato.core.helpers.encoding import simplifyString, tryUrlencode
 from couchpotato.core.helpers.variable import getImdb, tryInt
 from couchpotato.core.logger import CPLog
@@ -20,8 +21,6 @@ class YGG(TorrentProvider, MovieProvider):
     .. seealso:: YarrProvider.login, Plugin.wait
     """
 
-    url_scheme = 'https'
-    url_hostname = 'www8.yggtorrent.to'
     limit = 50
     http_time_between_calls = 0
 
@@ -31,26 +30,11 @@ class YGG(TorrentProvider, MovieProvider):
         """
         TorrentProvider.__init__(self)
         MovieProvider.__init__(self)
-        self.urls = {
-            'login': YGG.getBasePath() + '/user/login',
-            'login_check': YGG.getBasePath() + '/user/account',
-            'search': YGG.getBasePath() + '/engine/search?{}',
-            'torrent': YGG.getBasePath() + '/torrent',
-            'url': YGG.getBasePath() + '/engine/download_torrent?id={}'
-        }
+        addEvent('setting.save.ygg.url.after', self.refreshUrls)
+        self.refreshUrls()
         self.size_gb.append('go')
         self.size_mb.append('mo')
         self.size_kb.append('ko')
-
-    @staticmethod
-    def getBasePath():
-        """
-        Get YGG's base path URL.
-
-        :return: YGG's base path URL
-        :rtype: str
-        """
-        return '{}://{}'.format(YGG.url_scheme, YGG.url_hostname)
 
     @staticmethod
     def parseText(node):
@@ -61,6 +45,20 @@ class YGG(TorrentProvider, MovieProvider):
         :rtype: str
         """
         return node.getText().strip()
+
+    def refreshUrls(self):
+        """
+        Refresh all provider's urls
+        """
+        url = self.conf('url')
+        log.debug('Refreshing YGG provider\'s URLs with {}'.format(url))
+        self.urls = {
+            'login': url + '/user/login',
+            'login_check': url + '/user/account',
+            'search': url + '/engine/search?{}',
+            'torrent': url + '/torrent',
+            'url': url + '/engine/download_torrent?id={}'
+        }
 
     def getLoginParams(self):
         """
