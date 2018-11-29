@@ -6,6 +6,7 @@ import sys
 import time
 
 from cache import BaseCache
+from couchpotato.core.event import fireEvent
 from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.quality import QualityPlugin
 from couchpotato.core.settings import Settings
@@ -32,6 +33,14 @@ class TestPotatoYGG:
     def setUp(self, conf='/test.cfg'):
         settings = Settings()
         settings.setFile(base_path + conf)
+
+        """
+        To not regenerate an Travis encrypted token at every ygg hostname
+        change
+        """
+        if not settings.get('url', 'ygg'):
+            settings.set('ygg', 'url', 'https://ygg.to')
+
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
         Env.set('cache', NoCache())
@@ -153,3 +162,14 @@ class TestPotatoYGG:
         if isLogged:
             ygg._searchOnTitle(u'the bourne identity', media, qualities[2],
                                None)
+
+    def test_url(self):
+        ygg = self.setUp()
+        assert ygg.urls is not None
+        settings = Env.get('settings')
+        settings.set('ygg', 'url', 'http://test.com/test')
+        fireEvent('setting.save.ygg.url.after')
+        assert ygg.urls is None
+        settings.set('ygg', 'url', 'https://test.com/test/test/')
+        fireEvent('setting.save.ygg.url.after')
+        assert ygg.urls is not None

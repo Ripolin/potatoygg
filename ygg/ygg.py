@@ -48,17 +48,23 @@ class YGG(TorrentProvider, MovieProvider):
 
     def refreshUrls(self):
         """
-        Refresh all provider's urls
+        Refresh all provider's urls. Only an https base url is accepted,
+        http is not secure enough to use basic authentication.
         """
-        url = self.conf('url')
-        log.debug('Refreshing YGG provider\'s URLs with {}'.format(url))
-        self.urls = {
-            'login': url + '/user/login',
-            'login_check': url + '/user/account',
-            'search': url + '/engine/search?{}',
-            'torrent': url + '/torrent',
-            'url': url + '/engine/download_torrent?id={}'
-        }
+        matcher = re.search('^(https://[^/\s]+)/?', self.conf('url'))
+        if matcher:
+            url = matcher.group(1)
+            log.debug('Refreshing provider\'s urls with {}'.format(url))
+            self.urls = {
+                'login': url + '/user/login',
+                'login_check': url + '/user/account',
+                'search': url + '/engine/search?{}',
+                'torrent': url + '/torrent',
+                'url': url + '/engine/download_torrent?id={}'
+            }
+        else:
+            self.urls = None
+            log.warning('{} is not a valid url'.format(self.conf('url')))
 
     def getLoginParams(self):
         """

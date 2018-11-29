@@ -41,7 +41,8 @@ config = [{
                 },
                 {
                     'name': 'url',
-                    'default': 'https://www8.yggtorrent.to'
+                    'default': 'https://ygg.to',
+                    'description': 'Only an https url will be accepted'
                 },
                 {
                     'name': 'username',
