@@ -39,7 +39,7 @@ class TestPotatoYGG:
         change
         """
         if not settings.get('url', 'ygg'):
-            settings.set('ygg', 'url', 'https://ygg.to')
+            settings.set('ygg', 'url', 'https://ww3.yggtorrent.gg')
 
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
@@ -142,6 +142,21 @@ class TestPotatoYGG:
             }
             ygg.getMoreInfo(nzb)
             assert nzb['age'] is not None
+
+    def test_noResult(self):
+        ygg = self.setUp()
+        results = []
+        media = {
+            'identifier': 'tt2948356',
+            'type': 'movie',
+            'category': {'required': ''},
+            'info': {'year': 2016}
+        }
+        isLogged = ygg.login()
+        assert isLogged
+        if isLogged:
+            ygg._searchOnTitle(u'wxzxw', media, qualities[2], results)
+            assert len(results) == 0
 
     def test_download(self):
         ygg = self.setUp()

@@ -190,41 +190,42 @@ class YGG(TorrentProvider, MovieProvider):
             data = self.getHTMLData(self.buildUrl(title, offset))
             soup = BeautifulSoup(data, 'html.parser')
             filter_ = '^{}'.format(self.urls['torrent'])
-            for link in soup.find(class_='results').find_all(
-                    href=re.compile(filter_)):
-                detail_url = link['href']
-                if re.search(u'/filmvidéo/(film|animation|documentaire)/',
-                             detail_url):
-                    name = YGG.parseText(link)
-                    id_ = tryInt(re.search('/(\d+)-[^/\s]+$', link['href']).
-                                 group(1))
-                    columns = link.parent.parent.find_all('td')
-                    size = self.parseSize(YGG.parseText(columns[5]))
-                    seeders = tryInt(YGG.parseText(columns[7]))
-                    leechers = tryInt(YGG.parseText(columns[8]))
-                    result = {
-                        'id': id_,
-                        'name': name,
-                        'seeders': seeders,
-                        'leechers': leechers,
-                        'size': size,
-                        'url': self.urls['url'].format(id_),
-                        'detail_url': detail_url,
-                        'verified': True,
-                        'get_more_info': self.getMoreInfo,
-                        'extra_check': self.extraCheck
-                    }
-                    results.append(result)
-                    log.debug(result)
-            # Get next page if we don't have all results
-            pagination = soup.find('ul', class_='pagination')
-            if pagination:
-                for page in pagination.find_all('li'):
-                    next_ = tryInt(YGG.parseText(page.find('a')))
-                    if next_ > offset + 1:
-                        self._searchOnTitle(title, media, quality, results,
-                                            offset + 1)
-                        break
+            resultList = soup.find(class_='results')
+            if resultList:
+                for link in resultList.find_all(href=re.compile(filter_)):
+                    detail_url = link['href']
+                    if re.search(u'/filmvidéo/(film|animation|documentaire)/',
+                                 detail_url):
+                        name = YGG.parseText(link)
+                        id_ = tryInt(re.search('/(\d+)-[^/\s]+$',
+                                     link['href']).group(1))
+                        columns = link.parent.parent.find_all('td')
+                        size = self.parseSize(YGG.parseText(columns[5]))
+                        seeders = tryInt(YGG.parseText(columns[7]))
+                        leechers = tryInt(YGG.parseText(columns[8]))
+                        result = {
+                            'id': id_,
+                            'name': name,
+                            'seeders': seeders,
+                            'leechers': leechers,
+                            'size': size,
+                            'url': self.urls['url'].format(id_),
+                            'detail_url': detail_url,
+                            'verified': True,
+                            'get_more_info': self.getMoreInfo,
+                            'extra_check': self.extraCheck
+                        }
+                        results.append(result)
+                        log.debug(result)
+                # Get next page if we don't have all results
+                pagination = soup.find('ul', class_='pagination')
+                if pagination:
+                    for page in pagination.find_all('li'):
+                        next_ = tryInt(YGG.parseText(page.find('a')))
+                        if next_ > offset + 1:
+                            self._searchOnTitle(title, media, quality, results,
+                                                offset + 1)
+                            break
         except:
             log.error('Failed searching release from {}: {}'.
                       format(self.getName(), traceback.format_exc()))
