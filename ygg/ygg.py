@@ -51,6 +51,7 @@ class YGG(TorrentProvider, MovieProvider):
         Refresh all provider's urls. Only an https base url is accepted,
         http is not secure enough to use basic authentication.
         """
+        self.last_login_check = False
         matcher = re.search('^(https://[^/\s]+)/?', self.conf('url'))
         if matcher:
             url = matcher.group(1)
