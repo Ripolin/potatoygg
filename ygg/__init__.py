@@ -41,7 +41,7 @@ config = [{
                 },
                 {
                     'name': 'url',
-                    'default': 'https://ww3.yggtorrent.gg',
+                    'default': 'https://www2.yggtorrent.gg',
                     'description': 'Only an https url will be accepted'
                 },
                 {
