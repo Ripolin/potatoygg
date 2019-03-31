@@ -171,7 +171,11 @@ class TestPotatoYGG:
         settings.set('ygg', 'login_url', 'http://test.com/login')
         fireEvent('setting.save.ygg.url.after')
         assert ygg.urls is None
+        settings.set('ygg', 'url', 'https://test.com/test')
+        settings.set('ygg', 'login_url', 'http://test.com/login')
+        fireEvent('setting.save.ygg.url.after')
+        assert ygg.urls is None
         settings.set('ygg', 'url', 'https://test.com/test/test/')
-        settings.set('ygg', 'login_url', 'https://test.com/login')
+        settings.set('ygg', 'login_url', '')
         fireEvent('setting.save.ygg.url.after')
         assert ygg.urls is not None
