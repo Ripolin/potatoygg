@@ -1,4 +1,4 @@
-# coding: utf8
+# coding: utf-8
 import re
 import traceback
 
@@ -63,9 +63,27 @@ class YGG(TorrentProvider, MovieProvider):
                 'torrent': url + '/torrent',
                 'url': url + '/engine/download_torrent?id={}'
             }
+            self.refreshLoginUrl()
         else:
             self.urls = None
             log.warning('{} is not a valid url'.format(self.conf('url')))
+
+    def refreshLoginUrl(self):
+        """
+        Refresh only login's url if not empty. Only an https base url is
+        accepted, http is not secure enough to use basic authentication.
+        """
+        if not self.conf('login_url'):
+            return
+        self.last_login_check = False
+        matcher = re.search('^(https://[^/\s]+)/?', self.conf('login_url'))
+        if matcher:
+            login_url = matcher.group(1)
+            log.debug('Refreshing login url with {}'.format(login_url))
+            self.urls['login'] = login_url + '/user/login'
+        else:
+            self.urls = None
+            log.warning('{} is not a valid url'.format(self.conf('login_url')))
 
     def getLoginParams(self):
         """
@@ -90,6 +108,7 @@ class YGG(TorrentProvider, MovieProvider):
         :rtype: bool
         .. seealso:: YarrProvider.loginSuccess
         """
+        log.debug(output)
         return len(output) == 0
 
     def loginCheckSuccess(self, output):

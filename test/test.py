@@ -1,4 +1,4 @@
-# coding: utf8
+# coding: utf-8
 import logging
 import os
 import requests
@@ -40,6 +40,8 @@ class TestPotatoYGG:
         """
         if not settings.get('url', 'ygg'):
             settings.set('ygg', 'url', 'https://www2.yggtorrent.gg')
+        if not settings.get('login_url', 'ygg'):
+            settings.set('ygg', 'login_url', 'https://www.yggtorrent.gg')
 
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
@@ -166,8 +168,10 @@ class TestPotatoYGG:
         assert ygg.urls is not None
         settings = Env.get('settings')
         settings.set('ygg', 'url', 'http://test.com/test')
+        settings.set('ygg', 'login_url', 'http://test.com/login')
         fireEvent('setting.save.ygg.url.after')
         assert ygg.urls is None
         settings.set('ygg', 'url', 'https://test.com/test/test/')
+        settings.set('ygg', 'login_url', 'https://test.com/login')
         fireEvent('setting.save.ygg.url.after')
         assert ygg.urls is not None

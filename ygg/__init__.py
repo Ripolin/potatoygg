@@ -1,4 +1,4 @@
-# coding: utf8
+# coding: utf-8
 from .ygg import YGG
 
 
@@ -43,6 +43,12 @@ config = [{
                     'name': 'url',
                     'default': 'https://www2.yggtorrent.gg',
                     'description': 'Only an https url will be accepted'
+                },
+                {
+                    'name': 'login_url',
+                    'default': 'https://www.yggtorrent.gg',
+                    'description': 'Login specific url, if blank using generic'
+                                   'url above'
                 },
                 {
                     'name': 'username',
