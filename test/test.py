@@ -39,9 +39,9 @@ class TestPotatoYGG:
         change
         """
         if not settings.get('url', 'ygg'):
-            settings.set('ygg', 'url', 'https://www2.yggtorrent.gg')
+            settings.set('ygg', 'url', 'https://www2.yggtorrent.ch')
         if not settings.get('login_url', 'ygg'):
-            settings.set('ygg', 'login_url', 'https://www.yggtorrent.gg')
+            settings.set('ygg', 'login_url', 'https://www.yggtorrent.ch/')
 
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())

@@ -41,12 +41,12 @@ config = [{
                 },
                 {
                     'name': 'url',
-                    'default': 'https://www2.yggtorrent.gg',
+                    'default': 'https://www2.yggtorrent.ch',
                     'description': 'Only an https url will be accepted'
                 },
                 {
                     'name': 'login_url',
-                    'default': 'https://www.yggtorrent.gg',
+                    'default': 'https://www.yggtorrent.ch',
                     'description': 'Login specific url, if blank using generic'
                                    'url above'
                 },
