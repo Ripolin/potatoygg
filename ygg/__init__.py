@@ -47,8 +47,7 @@ config = [{
                 {
                     'name': 'login_url',
                     'default': 'https://www.yggtorrent.ch',
-                    'description': 'Login specific url, if blank using generic'
-                                   'url above'
+                    'description': 'Dedicated login url on https too'
                 },
                 {
                     'name': 'username',

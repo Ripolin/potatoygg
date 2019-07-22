@@ -23,6 +23,7 @@ class YGG(TorrentProvider, MovieProvider):
 
     limit = 50
     http_time_between_calls = 0
+    url_regexp = '^(https://[^/\s]+)/?'
 
     def __init__(self):
         """
@@ -31,7 +32,9 @@ class YGG(TorrentProvider, MovieProvider):
         TorrentProvider.__init__(self)
         MovieProvider.__init__(self)
         addEvent('setting.save.ygg.url.after', self.refreshUrls)
+        addEvent('setting.save.ygg.login_url.after', self.refreshLoginUrl)
         self.refreshUrls()
+        self.refreshLoginUrl()
         self.size_gb.append('go')
         self.size_mb.append('mo')
         self.size_kb.append('ko')
@@ -52,20 +55,21 @@ class YGG(TorrentProvider, MovieProvider):
         http is not secure enough to use basic authentication.
         """
         self.last_login_check = False
-        matcher = re.search('^(https://[^/\s]+)/?', self.conf('url'))
+        matcher = re.search(YGG.url_regexp, self.conf('url'))
         if matcher:
             url = matcher.group(1)
             log.debug('Refreshing provider\'s urls with {}'.format(url))
             self.urls = {
-                'login': url + '/user/login',
                 'login_check': url + '/user/account',
                 'search': url + '/engine/search?{}',
                 'torrent': url + '/torrent',
                 'url': url + '/engine/download_torrent?id={}'
             }
-            self.refreshLoginUrl()
         else:
-            self.urls = None
+            self.urls['login_check'] = None
+            self.urls['search'] = None
+            self.urls['torrent'] = None
+            self.urls['url'] = None
             log.warning('{} is not a valid url'.format(self.conf('url')))
 
     def refreshLoginUrl(self):
@@ -73,16 +77,14 @@ class YGG(TorrentProvider, MovieProvider):
         Refresh only login's url if not empty. Only an https base url is
         accepted, http is not secure enough to use basic authentication.
         """
-        if not self.conf('login_url'):
-            return
         self.last_login_check = False
-        matcher = re.search('^(https://[^/\s]+)/?', self.conf('login_url'))
+        matcher = re.search(YGG.url_regexp, self.conf('login_url'))
         if matcher:
             login_url = matcher.group(1)
             log.debug('Refreshing login url with {}'.format(login_url))
             self.urls['login'] = login_url + '/user/login'
         else:
-            self.urls = None
+            self.urls['login'] = None
             log.warning('{} is not a valid url'.format(self.conf('login_url')))
 
     def getLoginParams(self):

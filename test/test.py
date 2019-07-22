@@ -165,17 +165,28 @@ class TestPotatoYGG:
 
     def test_url(self):
         ygg = self.setUp()
-        assert ygg.urls is not None
+        assert ygg.urls['url'] is not None
         settings = Env.get('settings')
         settings.set('ygg', 'url', 'http://test.com/test')
-        settings.set('ygg', 'login_url', 'http://test.com/login')
         fireEvent('setting.save.ygg.url.after')
-        assert ygg.urls is None
+        assert ygg.urls['url'] is None
         settings.set('ygg', 'url', 'https://test.com/test')
-        settings.set('ygg', 'login_url', 'http://test.com/login')
         fireEvent('setting.save.ygg.url.after')
-        assert ygg.urls is None
+        assert ygg.urls['url'] is not None
         settings.set('ygg', 'url', 'https://test.com/test/test/')
-        settings.set('ygg', 'login_url', '')
         fireEvent('setting.save.ygg.url.after')
-        assert ygg.urls is not None
+        assert ygg.urls['torrent'] == 'https://test.com/torrent'
+
+    def test_login_url(self):
+        ygg = self.setUp()
+        assert ygg.urls['login'] is not None
+        settings = Env.get('settings')
+        settings.set('ygg', 'login_url', 'http://test.com/')
+        fireEvent('setting.save.ygg.login_url.after')
+        assert ygg.urls['login'] is None
+        settings.set('ygg', 'login_url', 'https://test.com/')
+        fireEvent('setting.save.ygg.login_url.after')
+        assert ygg.urls['login'] is not None
+        settings.set('ygg', 'login_url', 'https://test.com/test/test')
+        fireEvent('setting.save.ygg.login_url.after')
+        assert ygg.urls['login'] == 'https://test.com/user/login'
