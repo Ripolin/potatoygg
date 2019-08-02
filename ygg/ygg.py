@@ -24,6 +24,7 @@ class YGG(TorrentProvider, MovieProvider):
     limit = 50
     http_time_between_calls = 0
     url_regexp = '^(https://[^/\s]+)/?'
+    urls = {}
 
     def __init__(self):
         """
@@ -59,12 +60,10 @@ class YGG(TorrentProvider, MovieProvider):
         if matcher:
             url = matcher.group(1)
             log.debug('Refreshing provider\'s urls with {}'.format(url))
-            self.urls = {
-                'login_check': url + '/user/account',
-                'search': url + '/engine/search?{}',
-                'torrent': url + '/torrent',
-                'url': url + '/engine/download_torrent?id={}'
-            }
+            self.urls['login_check'] = url + '/user/account'
+            self.urls['search'] = url + '/engine/search?{}'
+            self.urls['torrent'] = url + '/torrent'
+            self.urls['url'] = url + '/engine/download_torrent?id={}'
         else:
             self.urls['login_check'] = None
             self.urls['search'] = None
