@@ -39,9 +39,9 @@ class TestPotatoYGG:
         change
         """
         if not settings.get('url', 'ygg'):
-            settings.set('ygg', 'url', 'https://www2.yggtorrent.ch')
+            settings.set('ygg', 'url', 'https://www2.yggtorrent.pe')
         if not settings.get('login_url', 'ygg'):
-            settings.set('ygg', 'login_url', 'https://www.yggtorrent.ch/')
+            settings.set('ygg', 'login_url', 'https://www.yggtorrent.pe/')
 
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
@@ -53,10 +53,6 @@ class TestPotatoYGG:
         assert not ygg.login()
 
     def test_login(self):
-        ygg = self.setUp()
-        assert ygg.login()
-
-    def test_loginCheck(self):
         ygg = self.setUp()
         assert ygg.login()
         ygg.last_login_check = time.time() - 7200
@@ -71,7 +67,6 @@ class TestPotatoYGG:
             'category': {'required': ''},
             'info': {'year': 2002}
         }
-        assert ygg.login()
         ygg._searchOnTitle(u'the bourne identity', media, qualities[2],
                            results)
         assert len(results) > 0
@@ -87,7 +82,6 @@ class TestPotatoYGG:
             'category': {'required': ''},
             'info': {'year': 2001}
         }
-        assert ygg.login()
         ygg._searchOnTitle(u'seigneur', media, qualities[2], results)
         ids = list()
         for result in results:
@@ -104,13 +98,11 @@ class TestPotatoYGG:
             'category': {'required': ''},
             'info': {'year': 2016}
         }
-        assert ygg.login()
         ygg._searchOnTitle(u'zootopia', media, qualities[2], results)
         assert len(results) > 0
 
     def test_extraCheck(self):
         ygg = self.setUp()
-        assert ygg.login()
         path_torrent = ygg.urls['torrent']
         nzb = {
             'detail_url': path_torrent + '/filmvid%C3%A9o/film/41240-integ'
@@ -123,7 +115,6 @@ class TestPotatoYGG:
 
     def test_moreInfo(self):
         ygg = self.setUp()
-        assert ygg.login()
         path_torrent = ygg.urls['torrent']
         nzb = {
             'detail_url': path_torrent + '/filmvid%C3%83%C2%A9o/film/84032'
@@ -142,7 +133,6 @@ class TestPotatoYGG:
             'category': {'required': ''},
             'info': {'year': 2016}
         }
-        assert ygg.login()
         ygg._searchOnTitle(u'wxzxw', media, qualities[2], results)
         assert len(results) == 0
 
@@ -160,7 +150,6 @@ class TestPotatoYGG:
             'category': {'required': ''},
             'info': {'year': 2002}
         }
-        assert ygg.login()
         ygg._searchOnTitle(u'the bourne identity', media, qualities[2], None)
 
     def test_url(self):

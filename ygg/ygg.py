@@ -1,5 +1,6 @@
 # coding: utf-8
 import re
+import time
 import traceback
 
 from bs4 import BeautifulSoup
@@ -9,6 +10,7 @@ from couchpotato.core.helpers.variable import getImdb, tryInt
 from couchpotato.core.logger import CPLog
 from couchpotato.core.media._base.providers.torrent.base import TorrentProvider
 from couchpotato.core.media.movie.providers.base import MovieProvider
+from couchpotato.environment import Env
 from datetime import datetime
 
 log = CPLog(__name__)
@@ -86,6 +88,19 @@ class YGG(TorrentProvider, MovieProvider):
             self.urls['login'] = None
             log.warning('{} is not a valid url'.format(self.conf('login_url')))
 
+    def login(self):
+        """
+        Override the default login function by making a dummy call to YGG
+        before login to fill session's HTTP cookies
+        :rtype: str
+        .. seealso:: YarrProvider.login
+        """
+        now = time.time()
+        if not self.last_login_check or self.last_login_check < (now - 600):
+            session = Env.get('http_opener')
+            session.request('get', self.urls['login'])
+        return super(YGG, self).login()
+
     def getLoginParams(self):
         """
         Return YGG login parameters.
@@ -162,7 +177,7 @@ class YGG(TorrentProvider, MovieProvider):
         result = True
         ids = getImdb(nzb.get('description', ''), multiple=True)
         if len(ids) not in [0, 1]:
-            log.info('Too much IMDB ids: {}'.format(', '.join(ids)))
+            log.error('Too much IMDB ids: {}'.format(', '.join(ids)))
             result = False
         return result
 
