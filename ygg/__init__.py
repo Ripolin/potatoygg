@@ -46,7 +46,7 @@ config = [{
                 },
                 {
                     'name': 'login_url',
-                    'default': 'https://www.yggtorrent.pe',
+                    'default': 'https://www3.yggtorrent.pe',
                     'description': 'Dedicated login url on https too'
                 },
                 {

@@ -7,12 +7,12 @@ import time
 
 from cache import BaseCache
 from couchpotato.core.event import fireEvent
+from couchpotato.core.loader import Loader
 from couchpotato.core.logger import CPLog
 from couchpotato.core.plugins.quality import QualityPlugin
 from couchpotato.core.settings import Settings
 from couchpotato.environment import Env
 from os.path import dirname
-from ygg import YGG
 
 base_path = dirname(os.path.abspath(__file__))
 plug = QualityPlugin()
@@ -33,20 +33,14 @@ class TestPotatoYGG:
     def setUp(self, conf='/test.cfg'):
         settings = Settings()
         settings.setFile(base_path + conf)
-
-        """
-        To not regenerate an Travis encrypted token at every ygg hostname
-        change
-        """
-        if not settings.get('url', 'ygg'):
-            settings.set('ygg', 'url', 'https://www2.yggtorrent.pe')
-        if not settings.get('login_url', 'ygg'):
-            settings.set('ygg', 'login_url', 'https://www.yggtorrent.pe/')
-
         Env.set('settings', settings)
         Env.set('http_opener', requests.Session())
         Env.set('cache', NoCache())
-        return YGG()
+        loader = Loader()
+        module = loader.loadModule('ygg')
+        assert module is not None
+        assert loader.loadSettings(module, 'ygg', save=False)
+        return module.autoload()
 
     def test_loginKO(self):
         ygg = self.setUp('/wrong.cfg')
@@ -56,7 +50,10 @@ class TestPotatoYGG:
         ygg = self.setUp()
         assert ygg.login()
         ygg.last_login_check = time.time() - 7200
-        assert ygg.login()
+        assert ygg.login()  # Test loginCheckSuccess
+        url = ygg.urls['url'].format('6103')
+        data = ygg.loginDownload(url)
+        assert len(data) > 0
 
     def test_searchMovie(self):
         ygg = self.setUp()
@@ -135,12 +132,6 @@ class TestPotatoYGG:
         }
         ygg._searchOnTitle(u'wxzxw', media, qualities[2], results)
         assert len(results) == 0
-
-    def test_download(self):
-        ygg = self.setUp()
-        url = ygg.urls['url'].format('6103')
-        data = ygg.loginDownload(url)
-        assert len(data) > 0
 
     def test_exception(self):
         ygg = self.setUp()
