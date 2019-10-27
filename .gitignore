@@ -1,5 +1,5 @@
 .cache
-.idea
+.pytest_cache
 .vscode
 
 test.cfg

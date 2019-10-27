@@ -5,6 +5,7 @@ import requests
 import sys
 import time
 
+from . import base_path
 from cache import BaseCache
 from couchpotato.core.event import fireEvent
 from couchpotato.core.loader import Loader
@@ -14,29 +15,29 @@ from couchpotato.core.settings import Settings
 from couchpotato.environment import Env
 from os.path import dirname
 
-base_path = dirname(os.path.abspath(__file__))
-plug = QualityPlugin()
-qualities = plug.qualities
-handler = logging.StreamHandler()
-log = CPLog(__name__)
-log.logger.setLevel('DEBUG')
-log.logger.addHandler(handler)
-requests.packages.urllib3.disable_warnings()
-
 
 class NoCache(BaseCache):
     def get(self, key):
         pass
 
+plug = QualityPlugin()
+qualities = plug.qualities
+
+handler = logging.StreamHandler()
+log = CPLog(__name__)
+log.logger.setLevel('DEBUG')
+log.logger.addHandler(handler)
+
+Env.set('cache', NoCache())
+Env.set('http_opener', requests.Session())
+Env.set('loader', Loader())
+Env.set('settings', Settings())
+
 
 class TestPotatoYGG:
     def setUp(self, conf='/test.cfg'):
-        settings = Settings()
-        settings.setFile(base_path + conf)
-        Env.set('settings', settings)
-        Env.set('http_opener', requests.Session())
-        Env.set('cache', NoCache())
-        loader = Loader()
+        Env.get('settings').setFile(base_path + conf)
+        loader = Env.get('loader')
         module = loader.loadModule('ygg')
         assert module is not None
         assert loader.loadSettings(module, 'ygg', save=False)
