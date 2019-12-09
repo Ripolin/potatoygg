@@ -41,12 +41,12 @@ config = [{
                 },
                 {
                     'name': 'url',
-                    'default': 'https://www2.yggtorrent.pe',
+                    'default': 'https://www2.yggtorrent.ws',
                     'description': 'Only an https url will be accepted'
                 },
                 {
                     'name': 'login_url',
-                    'default': 'https://www3.yggtorrent.pe',
+                    'default': 'https://www.yggtorrent.ws',
                     'description': 'Dedicated login url on https too'
                 },
                 {
